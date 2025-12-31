@@ -1,8 +1,17 @@
 // riscvsingle_dynamic_load.v
 // 支持动态加载机器码的完整 RISC-V 处理器
 // 基于 riscvsingle_fpga_forwarding.v，添加 UART 动态加载功能
-// PS 通过 UART 发送机器码，RISC-V 加载执行并返回结果
+// PC 通过 UART 发送机器码，RISC-V 加载执行并返回结果
 // 顶层模块: fpga_top_dynamic
+// 
+// 版本: FPGA 硬件版本
+// 说明: 
+//   - 移除了仿真加速宏 (SIM_FAST)
+//   - 使用实际波特率配置 (默认 115200@50MHz)
+//   - 可通过参数调整波特率分频值
+//
+// 时钟要求: 50MHz (可配置)
+// UART 配置: 115200, 8N1, 无流控
 
 module fpga_top_dynamic (
     input wire sys_clk,
@@ -283,13 +292,13 @@ module uart_tx_simple (
     output reg tx,
     output reg busy
 );
-    // 波特率: 115200 @ 50MHz -> 434 cycles per bit
-    // 仿真时使用 -DSIM_FAST 加速
-    `ifdef SIM_FAST
-    parameter BAUD_DIV = 10;
-    `else
-    parameter BAUD_DIV = 434;
-    `endif
+    // 波特率分频参数
+    // 计算公式: BAUD_DIV = 时钟频率 / 波特率
+    // 例如: 50MHz / 115200 = 434
+    //       100MHz / 115200 = 868
+    //       50MHz / 9600 = 5208
+    // 可在顶层模块实例化时重载此参数
+    parameter BAUD_DIV = 434;  // 默认 115200@50MHz
     
     reg [15:0] baud_cnt;
     reg [3:0] bit_idx;
@@ -339,12 +348,13 @@ module uart_rx_simple (
     output reg [7:0] data,
     output reg ready
 );
-    // 波特率: 115200 @ 50MHz -> 434 cycles per bit
-    `ifdef SIM_FAST
-    parameter BAUD_DIV = 10;
-    `else
-    parameter BAUD_DIV = 434;
-    `endif
+    // 波特率分频参数
+    // 计算公式: BAUD_DIV = 时钟频率 / 波特率
+    // 例如: 50MHz / 115200 = 434
+    //       100MHz / 115200 = 868
+    //       50MHz / 9600 = 5208
+    // 可在顶层模块实例化时重载此参数
+    parameter BAUD_DIV = 434;  // 默认 115200@50MHz
     
     // 同步器 (减少到2级，加快响应)
     reg [1:0] rx_sync;

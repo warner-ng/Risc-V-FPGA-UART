@@ -1,0 +1,45 @@
+# # =============================================================================
+# # AX7021 PL Constraints for RISC-V UART Project
+# # Top module: fpga_top_dynamic
+# # =============================================================================
+
+# # -----------------------------------------------------------------------------
+# # 1. System Clock (PL_GCLK)
+# # AX7021 PL active crystal is 50MHz, connected to pin Y9 (Bank 13)
+# # -----------------------------------------------------------------------------
+# set_property PACKAGE_PIN Y9 [get_ports sys_clk]
+# set_property IOSTANDARD LVCMOS33 [get_ports sys_clk]
+# # Correct period for 50MHz is 20.000ns
+# create_clock -period 20.000 -name sys_clk [get_ports sys_clk]
+
+# # -----------------------------------------------------------------------------
+# # 2. Reset Button (KEY2 / PL_KEY)
+# # Active Low, connected to pin A17 (Bank 33)
+# # -----------------------------------------------------------------------------
+# set_property PACKAGE_PIN A17 [get_ports key]
+# set_property IOSTANDARD LVCMOS33 [get_ports key]
+
+# # -----------------------------------------------------------------------------
+# # 3. User LEDs
+# # led[0]: Core Board LED2 (PL_LED) -> R7
+# # led[1]: Carrier Board LED1 (PL_LED) -> A16
+# # -----------------------------------------------------------------------------
+# set_property PACKAGE_PIN R7 [get_ports {led[0]}]
+# set_property PACKAGE_PIN A16 [get_ports {led[1]}]
+# set_property IOSTANDARD LVCMOS33 [get_ports {led[*]}]
+
+# # -----------------------------------------------------------------------------
+# # 4. UART Interface (Mapped to J15 Expansion Header)
+# # NOTE: The onboard USB-UART is connected to PS MIO, not PL pins.
+# # You must connect an external USB-TTL adapter to these pins on J15.
+# # -----------------------------------------------------------------------------
+
+# # UART TX (Output from FPGA) -> Connect to RX of external module
+# # Mapped to J15 Pin 3 (Signal T21)
+# set_property PACKAGE_PIN T21 [get_ports uart_tx]
+# set_property IOSTANDARD LVCMOS33 [get_ports uart_tx]
+
+# # UART RX (Input to FPGA) -> Connect to TX of external module
+# # Mapped to J15 Pin 4 (Signal U21)
+# set_property PACKAGE_PIN U21 [get_ports uart_rx]
+# set_property IOSTANDARD LVCMOS33 [get_ports uart_rx]
